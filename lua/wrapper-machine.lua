@@ -1,6 +1,4 @@
-local set_single_line = require("set_single_line")
-local set_multi_lines = require("set_multi_lines")
-local get_pos = require("get_pos")
+local set_lines = require("set_lines")
 
 local M = {}
 
@@ -19,21 +17,11 @@ local defaults = {
 }
 
 local function init(config)
-    local function wrap_text_with(symbol)
-        local start_pos, end_pos = get_pos()
-
-        if start_pos[1] == end_pos[1] then
-            set_single_line(start_pos, end_pos, symbol, config)
-        else
-            set_multi_lines(start_pos, end_pos, symbol, config)
-        end
-    end
-
     for _, symbol in ipairs(config.symbols) do
         vim.keymap.set(
             "v",
             config.keymap .. symbol,
-            function() wrap_text_with(symbol) end,
+            function() set_lines(symbol, config) end,
             { silent = true }
         )
     end
