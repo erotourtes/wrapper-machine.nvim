@@ -12,10 +12,13 @@ local function set_lines(symbol, config)
         end_line = 1
     end
 
+    -- offset for the case when the selection is already wrapped
+    local offset = 0;
+
     local first_sel_ch = lines[start_line]:sub(start_pos[2] + 1, start_pos[2] + 1)
     local last_sel_ch = lines[end_line]:sub(end_pos[2] + 1, end_pos[2] + 1)
 
-    -- unwraping if the selection is already wrapped
+    -- unwrapping if the selection is already wrapped
     for _, conf_symbol in ipairs(config.symbols) do
         if
             first_sel_ch == conf_symbol
@@ -24,13 +27,14 @@ local function set_lines(symbol, config)
             lines[end_line] = lines[end_line]:sub(1, end_pos[2]) .. lines[end_line]:sub(end_pos[2] + 2)
             lines[start_line] = lines[start_line]:sub(1, start_pos[2])
                 .. lines[start_line]:sub(start_pos[2] + 2)
+            offset = -2
             break
         end
     end
 
     if first_sel_ch ~= symbol and symbol ~= last_sel_ch then
         lines[end_line] =
-        wrap_string_with(config.close_symbols[symbol], lines[end_line], end_pos[2] + 1)
+        wrap_string_with(config.close_symbols[symbol], lines[end_line], end_pos[2] + 1 + offset)
         lines[start_line] = wrap_string_with(symbol, lines[start_line], start_pos[2])
     end
 
