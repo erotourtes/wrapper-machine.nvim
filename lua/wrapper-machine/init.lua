@@ -1,4 +1,4 @@
-local set_lines = require("set_lines")
+local set_lines = require("wrapper-machine.set_lines")
 
 local M = {}
 

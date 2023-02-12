@@ -1,6 +1,6 @@
-local wrap_string_with = require("wrap_string_with")
-local bound_lines = require("bound_lines")
-local get_pos = require("get_pos")
+local wrap_string_with = require("wrapper-machine.wrap_string_with")
+local bound_lines = require("wrapper-machine.bound_lines")
+local get_pos = require("wrapper-machine.get_pos")
 
 local function set_lines(symbol, config)
     local start_pos, end_pos = get_pos()
