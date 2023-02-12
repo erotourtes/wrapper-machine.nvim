@@ -3,7 +3,7 @@ local set_lines = require("wrapper-machine.set_lines")
 local M = {}
 
 local defaults = {
-    symbols = { "(", "[", "{", "<", '"', "'", "`" },
+    symbols = {},
     close_symbols = {
         ["("] = ")",
         ["["] = "]",
@@ -32,6 +32,7 @@ local function apply_user_config(user_config)
 
     if user_config then
         if vim.tbl_islist(user_config.keymap) then config.keymap = user_config.keymap end
+        if vim.tbl_islist(user_config.close_symbols) then config.close_symbols = user_config.close_symbols end
     end
 
     return config
@@ -39,7 +40,10 @@ end
 
 M.setup = function(user_config)
     local config = apply_user_config(user_config)
-    print(config)
+
+    for left_bracket in pairs(config.close_symbols) do
+        table.insert(config.symbols, left_bracket)
+    end
 
     init(config)
 end
