@@ -1,6 +1,6 @@
 local M = {}
 
-local symbols = {
+local close_symbols = {
     ["("] = ")",
     ["["] = "]",
     ["{"] = "}",
@@ -8,6 +8,10 @@ local symbols = {
     ["\""] = "\"",
     ["'"] = "'",
     ["`"] = "`",
+}
+
+local defaults = {
+    symbols = { "(", "[", "{", "<", "\"", "'", "`" }
 }
 
 local function get_pos()
@@ -42,13 +46,13 @@ local function wrap_text_with(symbol)
 
     local function set_one_line()
         local wrapped_line = wrap_string_with(symbol, start_line, start_pos[2])
-        wrapped_line = wrap_string_with(symbols[symbol], wrapped_line, end_pos[2] + 2)
+        wrapped_line = wrap_string_with(close_symbols[symbol], wrapped_line, end_pos[2] + 2)
         vim.api.nvim_buf_set_lines(0, start_pos[1] - 1, start_pos[1], false, { wrapped_line })
     end
 
     local function set_multi_line()
         local wrapped_start = wrap_string_with(symbol, start_line, start_pos[2])
-        local wrapped_end = wrap_string_with(symbols[symbol], end_line, end_pos[2] + 1)
+        local wrapped_end = wrap_string_with(close_symbols[symbol], end_line, end_pos[2] + 1)
 
         vim.api.nvim_buf_set_lines(0, start_pos[1] - 1, start_pos[1], false, { wrapped_start })
         vim.api.nvim_buf_set_lines(0, end_pos[1] - 1, end_pos[1], false, { wrapped_end })
@@ -61,14 +65,31 @@ local function wrap_text_with(symbol)
     end
 end
 
-vim.keymap.set("v", "(", function()
-    print(wrap_text_with(("(")))
+local function init()
+    for _, symbol in ipairs(defaults.symbols) do
+        vim.keymap.set("v", symbol, function()
+            wrap_text_with(symbol)
+        end, { silent = true })
+    end
+end
 
-end, { silent = true })
+local function apply_user_config(user_config)
+  local config = vim.tbl_deep_extend("force", {}, defaults)
 
+  if user_config then
+    if vim.tbl_islist(user_config.remap_keys) then
+      config.remap_keys = user_config.remap_keys
+    end
+  end
+
+  return config
+end
 
 M.setup = function(user_config)
+    local config = apply_user_config(user_config)
+    print(config)
 
+    init()
 end
 
 
