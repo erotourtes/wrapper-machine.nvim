@@ -7,7 +7,9 @@ local function get_pos()
 
     -- when visual-line mode is on end_pos[2] will be very large number
     if end_pos[2] > 1000000 then
-        end_pos[2] = vim.api.nvim_buf_get_lines(0, end_pos[1] - 1, end_pos[1], false)[1]:len() - 1
+        end_pos[2] = vim.api
+            .nvim_buf_get_lines(0, end_pos[1] - 1, end_pos[1], false)[1]
+            :len() - 1
     end
 
     return start_pos, end_pos

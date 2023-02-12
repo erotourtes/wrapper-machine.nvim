@@ -2,7 +2,6 @@ local set_single_line = require("set_single_line")
 local set_multi_lines = require("set_multi_lines")
 local get_pos = require("get_pos")
 
-
 local M = {}
 
 local defaults = {
