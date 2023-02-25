@@ -42,4 +42,6 @@ require("wrapper-machine").setup({
 
 ```
 
+In order to wrap something press your keymap and an opening bracket in visual mode.
+
 For more information read [help](./doc/wrapper-machine.txt) `:h wrapper-machine.nvim`.
