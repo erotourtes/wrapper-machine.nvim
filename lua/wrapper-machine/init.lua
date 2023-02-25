@@ -1,51 +1,80 @@
-local set_lines = require("wrapper-machine.set_lines")
+local activate = require("wrapper-machine.activate")
+local deactivate = require("wrapper-machine.deactivate")
+local apply_user_config = require("wrapper-machine.apply_user_config")
 
 local M = {}
 
 local defaults = {
-    symbols = {},
-    close_symbols = {
-        ["("] = ")",
-        ["["] = "]",
-        ["{"] = "}",
-        ["<"] = ">",
-        ['"'] = '"',
-        ["'"] = "'",
-        ["`"] = "`",
-    },
-    keymap = "<leader>",
+  symbols = {},
+  close_symbols = {
+    ["("] = ")",
+    ["["] = "]",
+    ["{"] = "}",
+    ["<"] = ">",
+    ['"'] = '"',
+    ["'"] = "'",
+    ["`"] = "`",
+  },
+  keymap = "<leader>",
+  create_commands = true,
 }
 
 local function init(config)
-    for _, symbol in ipairs(config.symbols) do
-        vim.keymap.set(
-            "v",
-            config.keymap .. symbol,
-            function() set_lines(symbol, config) end,
-            { silent = true }
-        )
+  local is_active = false
+
+  local enable = function()
+    if not is_active then
+      activate(config)
+      is_active = true
     end
-end
+  end
 
-local function apply_user_config(user_config)
-    local config = vim.tbl_deep_extend("force", {}, defaults)
-
-    if user_config then
-        if user_config.keymap ~= nil then config.keymap = user_config.keymap end
-        if user_config.close_symbols ~= nil then config.close_symbols = user_config.close_symbols end
+  local disable = function()
+    if is_active then
+      deactivate(config)
+      is_active = false
     end
+  end
 
-    return config
+  local toggle = function()
+    if is_active then
+      disable()
+    else
+      enable()
+    end
+  end
+
+  enable()
+
+  return enable, disable, toggle
 end
 
 M.setup = function(user_config)
-    local config = apply_user_config(user_config)
+  local config = apply_user_config(user_config, defaults)
 
-    for left_bracket in pairs(config.close_symbols) do
-        table.insert(config.symbols, left_bracket)
-    end
+  for left_bracket in pairs(config.close_symbols) do
+    table.insert(config.symbols, left_bracket)
+  end
 
-    init(config)
+  M.enable, M.disable, M.toggle = init(config)
+
+  if config.create_commands then
+    vim.api.nvim_create_user_command(
+      "WrapperMachinEnable",
+      function() M.enable() end,
+      {}
+    )
+    vim.api.nvim_create_user_command(
+      "WrapperMachineDisable",
+      function() M.disable() end,
+      {}
+    )
+    vim.api.nvim_create_user_command(
+      "WrapperMachineToggle",
+      function() M.toggle() end,
+      {}
+    )
+  end
 end
 
 return M
